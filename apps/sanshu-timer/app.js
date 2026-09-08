@@ -313,16 +313,17 @@
     }
     
     function renderResultScreen() {
-        if (!state.session) return;
-        const result = calculateResults();
+        const sess = state.viewSession || sess;
+        if (!sess) return;
+        const result = calculateResults(sess);
         
-        dom.resultMode.textContent = state.session.mode === MODES.TAKUITSU ? '択一式' : '選択式';
+        dom.resultMode.textContent = sess.mode === MODES.TAKUITSU ? '択一式' : '選択式';
         dom.resultTotalTime.textContent = formatTime(result.totalTime);
         
         // Summary Table
-        const def = state.session.mode === MODES.TAKUITSU ? TAKUITSU_DEF : SENTAKU_DEF;
+        const def = sess.mode === MODES.TAKUITSU ? TAKUITSU_DEF : SENTAKU_DEF;
         let summaryHtml = '<table class="data-table"><thead><tr><th>科目</th>';
-        const states = state.session.mode === MODES.TAKUITSU ? ['L1', 'L2', 'L3', '済'] : ['安全', '危険', '済'];
+        const states = sess.mode === MODES.TAKUITSU ? ['L1', 'L2', 'L3', '済'] : ['安全', '危険', '済'];
         states.forEach(s => summaryHtml += `<th>${s}</th>`);
         summaryHtml += '</tr></thead><tbody>';
         
@@ -338,7 +339,7 @@
         dom.resultSummary.innerHTML = summaryHtml;
         
         // CP Diff Table
-        if (state.session.mode === MODES.TAKUITSU) {
+        if (sess.mode === MODES.TAKUITSU) {
              let cpHtml = '<table class="data-table"><thead><tr><th>科目</th><th>目標CP</th><th>実績</th><th>差</th></tr></thead><tbody>';
              def.subjects.forEach((subj, i) => {
                  const target = def.checkpoints[i];
@@ -368,7 +369,7 @@
         dom.resultWarnings.innerHTML = warningsHtml;
         
         // Memo
-        dom.resultMemo.value = state.session.memo || '';
+        dom.resultMemo.value = sess.memo || '';
     }
     
     function renderHistoryScreen() {
@@ -404,7 +405,7 @@
                 </div>
             `;
             card.onclick = () => {
-                state.session = session;
+                state.viewSession = session;
                 showScreen('result-screen');
                 render();
             };
@@ -790,6 +791,7 @@
             state.history.unshift(historyEntry); // Add to beginning
             saveHistory();
 
+            state.viewSession = historyEntry; // 結果画面用に保持（進行中セッションは破棄）
             state.session = null;
             saveSession();
             releaseWakeLock();
@@ -897,12 +899,13 @@
         };
         
         dom.saveMemoBtn.onclick = () => {
-            if (state.session) {
-                state.session.memo = dom.resultMemo.value;
+            const sess = state.viewSession || state.session;
+            if (sess) {
+                sess.memo = dom.resultMemo.value;
                 // Find and update in history
-                const index = state.history.findIndex(h => h.id === state.session.id);
+                const index = state.history.findIndex(h => (h.id && h.id === sess.id) || (h.startTime && h.startTime === sess.startTime));
                 if (index > -1) {
-                    state.history[index].memo = state.session.memo;
+                    state.history[index].memo = sess.memo;
                     saveHistory();
                     dom.saveMemoBtn.textContent = '保存済み';
                     setTimeout(() => dom.saveMemoBtn.textContent = 'メモを保存', 2000);
