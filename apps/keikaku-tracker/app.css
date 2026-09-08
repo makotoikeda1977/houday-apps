@@ -1,0 +1,15 @@
+.kpi .tile.ng .v{color:var(--ng)}.kpi .tile.warn .v{color:var(--warn)}
+.pro-tag{font-size:10px;background:#fef3c7;color:#92400e;border-radius:999px;padding:1px 6px;margin-left:2px}
+.pill.attention{background:#fef9c3;color:#854d0e}
+td .d{white-space:nowrap}
+td .sub{display:block;font-size:11px;color:var(--muted)}
+tr.row-ng td:first-child{border-left:4px solid var(--ng)}tr.row-warn td:first-child{border-left:4px solid var(--warn)}tr.row-attention td:first-child{border-left:4px solid #eab308}
+.modal-wide{max-width:640px}
+.timeline .day{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.timeline .day .date{min-width:110px;font-weight:600;font-variant-numeric:tabular-nums}
+.timeline .day .date.past{color:var(--ng)}
+.timeline .ev{display:flex;flex-wrap:wrap;gap:6px 12px}
+.timeline .ev span{font-size:13px}
+.ops{display:flex;flex-direction:column;gap:4px;min-width:96px}
+.filters>*{flex:1 1 140px}
+@media print{.filters,.ops{display:none!important}th:last-child,td:last-child{display:none}}

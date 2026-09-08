@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社労士 3周法タイマー</title>
+    <link rel="stylesheet" href="../../common/theme.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>社労士 3周法タイマー</h1>
+        <span class="badge" id="planBadge">Free</span>
+        <button class="btn sm secondary" id="proBtn">Pro版</button>
+    </header>
+
+    <div id="main" class="container">
+        <!-- Screen: Mode Selection -->
+        <div id="mode-selection-screen">
+            <div class="card">
+                <h2>モード選択</h2>
+                <div class="row">
+                    <button id="start-takuitsu-btn" class="btn">択一式</button>
+                    <button id="start-sentaku-btn" class="btn">選択式</button>
+                </div>
+            </div>
+            <div id="settings-card" class="card">
+                <h3>時間設定 <span class="pro-lock">Pro</span></h3>
+                <div id="takuitsu-settings" class="hidden">
+                    <h4>択一式</h4>
+                    <label>1周目 (分): <input type="number" id="taku-round1-time" value="60" disabled></label>
+                    <label>2周目 (分): <input type="number" id="taku-round2-time" value="90" disabled></label>
+                    <label>3周目 (分): <input type="number" id="taku-round3-time" value="60" disabled></label>
+                </div>
+                <div id="sentaku-settings" class="hidden">
+                    <h4>選択式</h4>
+                    <label>1周目 (分): <input type="number" id="sentaku-round1-time" value="20" disabled></label>
+                    <label>2周目 (分): <input type="number" id="sentaku-round2-time" value="40" disabled></label>
+                    <label>3周目 (分): <input type="number" id="sentaku-round3-time" value="20" disabled></label>
+                </div>
+                <div class="note">Pro版で時間配分を編集できます。<button id="settings-pro-btn" class="btn sm">Pro版を見る</button></div>
+            </div>
+            <div class="card">
+                <h2>履歴</h2>
+                <div id="history-list-summary"></div>
+                <div class="btn-row">
+                    <button id="history-btn" class="btn secondary">全履歴を見る</button>
+                </div>
+            </div>
+            <div class="card">
+                <h2>使い方</h2>
+                <p>社労士試験の「3周法」を本番同様の時間配分で訓練するタイマーです。</p>
+                <div id="usage-card" class="hidden">
+                    <h4>3周法とは？</h4>
+                    <p><strong>1周目:</strong> 全問を高速で確認し、解答の確信度に応じて「L1(確信)」「L2(迷い)」「L3(捨て)」に分類します。</p>
+                    <p><strong>2周目:</strong> 「L2(迷い)」の問題をじっくり解きます。</p>
+                    <p><strong>3周目:</strong> 「L3(捨て)」の問題に挑戦し、全体の見直しをします。</p>
+                </div>
+                <button id="toggle-usage-btn" class="btn sm ghost">続きを読む</button>
+            </div>
+        </div>
+
+        <!-- Screen: Timer -->
+        <div id="timer-screen" class="hidden">
+            <div class="kpi-group">
+                <div class="kpi">
+                    <span class="label">周回</span>
+                    <span id="current-round-display">1/3</span>
+                </div>
+                <div class="kpi">
+                    <span class="label">周回 残り時間</span>
+                    <span id="round-timer-display">--:--</span>
+                </div>
+                <div class="kpi">
+                    <span class="label">全体経過</span>
+                    <span id="total-timer-display">--:--</span>
+                </div>
+            </div>
+
+            <div id="checkpoint-bar" class="table-wrap"></div>
+            
+            <div id="question-grid-container" class="card">
+                <div id="question-grid-takuitsu" class="hidden"></div>
+                <div id="question-grid-sentaku" class="hidden"></div>
+            </div>
+            
+            <div class="btn-row">
+                <button id="next-round-btn" class="btn">2周目へ</button>
+                <button id="pause-resume-btn" class="btn secondary">一時停止</button>
+                <button id="stop-btn" class="btn danger">中断</button>
+            </div>
+            <div class="row">
+                <label>サウンド <input type="checkbox" id="sound-toggle" checked></label>
+            </div>
+        </div>
+
+        <!-- Screen: Result -->
+        <div id="result-screen" class="hidden">
+            <h2>結果</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="kpi">
+                        <span class="label">モード</span>
+                        <span id="result-mode"></span>
+                    </div>
+                    <div class="kpi">
+                        <span class="label">総所要時間</span>
+                        <span id="result-total-time"></span>
+                    </div>
+                </div>
+                <h3>科目別集計</h3>
+                <div id="result-summary" class="table-wrap"></div>
+                <h3>1周目 CPからの時間差</h3>
+                <div id="result-cp-diff" class="table-wrap"></div>
+                <div id="result-warnings"></div>
+                
+                <h3>今回のメモ</h3>
+                <textarea id="result-memo" rows="4" placeholder="今回の課題や気づきをメモ..."></textarea>
+                <div class="btn-row">
+                    <button id="save-memo-btn" class="btn">メモを保存</button>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button id="back-to-top-btn" class="btn secondary">トップに戻る</button>
+            </div>
+        </div>
+
+        <!-- Screen: History -->
+        <div id="history-screen" class="hidden">
+            <h2>履歴</h2>
+            <div id="history-list-full">
+                <!-- 履歴がここに挿入される -->
+            </div>
+            <div id="history-pro-note" class="note hidden">
+                Pro版では履歴を無制限に保存し、科目別の成長グラフを確認できます。
+                <button id="history-pro-btn" class="btn sm">Pro版を見る</button>
+            </div>
+            <canvas id="history-chart" class="hidden" width="300" height="150"></canvas>
+            <div class="btn-row">
+                <button id="back-to-top-from-history-btn" class="btn secondary">トップに戻る</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="lock-overlay hidden">
+        <div class="pro-lock"></div>
+        <span>Pro版の機能です</span>
+    </div>
+
+    <div id="confirm-dialog" class="modal-bg hidden">
+        <div class="modal">
+            <p id="confirm-message"></p>
+            <div class="btn-row">
+                <button id="confirm-ok-btn" class="btn">OK</button>
+                <button id="confirm-cancel-btn" class="btn secondary">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© シャロッシング</footer>
+
+    <script src="../../common/license.js" data-app="sanshu-timer"></script>
+    <script src="app.js"></script>
+</body>
+</html>

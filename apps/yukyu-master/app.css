@@ -1,0 +1,89 @@
+/* 基本的なスタイル */
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+}
+
+.kpi-container {
+    gap: 1rem;
+}
+
+.kpi {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.kpi label {
+    display: block;
+    font-size: 0.8em;
+    color: #555;
+}
+
+.kpi span {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+#employeeList .employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+#employeeList .employee-item.active {
+    background-color: #e0f7ff;
+    border-color: #007bff;
+}
+
+#employeeList .employee-item:hover {
+    background-color: #f0f0f0;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.col-md-8 {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+}
+
+.col-md-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+
+/* 印刷用スタイル */
+@media print {
+    body {
+        font-size: 10pt;
+    }
+    .app-header, .app-footer, .btn, .btn-row, #add-leave-form, #employeeList, .note, h2, #alerts-container, form {
+        display: none !important;
+    }
+    .container, .card, .table-wrap {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    #employeeDetails {
+        display: block !important;
+    }
+    
+    .col-md-8 {
+       flex: 0 0 100%;
+       max-width: 100%;
+    }
+}

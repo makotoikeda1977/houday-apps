@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>処遇改善加算 配分シミュレーター - 放デイの書類屋さん</title>
+    <link rel="stylesheet" href="../../common/theme.css">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>処遇改善加算 配分シミュレーター</h1>
+        <span class="badge" id="planBadge">Free</span>
+        <button class="btn sm secondary" id="proBtn">Pro版</button>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>1. 条件入力</h2>
+            <div class="row">
+                <label>事業所種別:
+                    <select id="serviceType">
+                        <option value="houdei">放課後等デイサービス</option>
+                        <option value="jihatsu">児童発達支援</option>
+                    </select>
+                </label>
+                <label>算定区分:
+                    <select id="kasanKbn">
+                        <option value="i_i">Ⅰ(イ)</option>
+                        <option value="i_ro">Ⅰ(ロ)</option>
+                        <option value="ii_i">Ⅱ(イ)</option>
+                        <option value="ii_ro">Ⅱ(ロ)</option>
+                        <option value="iii">Ⅲ</option>
+                        <option value="iv">Ⅳ</option>
+                    </select>
+                </label>
+            </div>
+            <div class="row">
+                 <label>月間対象報酬額(円):
+                    <input type="number" id="hoshuGaku" placeholder="例: 2,500,000">
+                </label>
+            </div>
+            <div class="note">
+                または、総単位数と地域単価から計算:
+                 <input type="number" id="totalTani" placeholder="総単位数"> × 
+                 <input type="number" id="chiikiTanka" value="10.00" step="0.01" min="10" max="11.40"> 円
+            </div>
+             <div class="row">
+                <label>事業所名 (印刷・保存用):
+                    <input type="text" id="jigyoshoName" placeholder="例: 放デイの書類屋さん">
+                </label>
+            </div>
+
+            <label class="row">
+                <input type="checkbox" id="editRatesToggle"> 加算率を編集する
+            </label>
+            <div id="ratesEditor" class="hidden">
+                <p class="note">告示改定などに備え、加算率を一時的に変更できます。この変更はブラウザに保存されます。</p>
+                <div id="ratesInputs"></div>
+                <button class="btn sm" id="resetRatesBtn">初期値に戻す</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. 加算見込み額と要件</h2>
+            <div class="kpi-container">
+                <div class="kpi">
+                    <span class="label">月額加算見込み</span>
+                    <span class="value" id="kasanMokomiMonthly">0<small>円</small></span>
+                </div>
+                <div class="kpi">
+                    <span class="label">年間加算見込み</span>
+                    <span class="value" id="kasanMokomiAnnual">0<small>円</small></span>
+                </div>
+                <div class="kpi">
+                    <span class="label">月額賃金改善の必要額</span>
+                    <span class="value" id="hitsuyouGakuMonthly">0<small>円</small></span>
+                    <small class="muted">(加算Ⅳ相当額の1/2)</small>
+                </div>
+                <div class="kpi">
+                    <span class="label">(ロ)区分要件の月額</span>
+                    <span class="value" id="roYoukenGaku">0<small>円</small></span>
+                    <small class="muted">(加算Ⅱ(ロ)相当額の1/2)</small>
+                </div>
+            </div>
+             <p class="note">※率は令和8年6月改定版です。最新の告示や指定権者を必ずご確認ください。<br>※加算対象外の報酬（送迎加算など）が正しく除かれているか、指定権者にご確認ください。</p>
+        </div>
+
+        <div class="card">
+            <h2>3. 職員への配分</h2>
+            <div class="table-wrap">
+                <table id="haibunTable">
+                    <thead>
+                        <tr>
+                            <th>氏名</th>
+                            <th>職種</th>
+                            <th>月額改善額 (円/月)</th>
+                            <th>一時金・賞与 (円/年)</th>
+                            <th>年間改善額 (円)</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 職員データはJSで追加 -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2">合計</td>
+                            <td id="totalMonthlyHaibun">0</td>
+                            <td id="totalBonusHaibun">0</td>
+                            <td id="totalAnnualHaibun">0</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="btn-row">
+                <button class="btn" id="addStaffBtn">職員を追加</button>
+            </div>
+            <div id="proLimitAlert" class="alert hidden">
+                <p>Free版では職員5名まで登録できます。</p>
+                <p>Pro版にすると無制限に登録でき、CSV出力や複数データの保存も可能になります。</p>
+                <button class="btn" id="proLeadBtn">Pro版の詳細を見る</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. 判定結果</h2>
+            <div id="hanteiResult">
+                <div class="pill muted" id="hanteiKasanTotal">判定中...</div>
+                <div class="pill muted" id="hanteiMonthlyYoken">判定中...</div>
+                <div class="pill muted" id="hanteiRoYoken">判定中...</div>
+            </div>
+            <p id="hanteiDetail" class="note"></p>
+            <p class="kpi">一人あたり平均改善額: <span id="avgKaisenGaku">0</span> 円/年</p>
+        </div>
+        
+        <div class="card">
+            <h2>5. 出力と保存</h2>
+            <div class="btn-row">
+                <button class="btn" id="printBtn">配分表を印刷</button>
+                <button class="btn secondary" id="csvExportBtn">CSV出力</button>
+                <button class="btn secondary" id="saveBtn">保存</button>
+                <button class="btn secondary" id="loadBtn">読込</button>
+            </div>
+            <div id="saveLoadModal" class="modal-bg hidden">
+                <div class="modal">
+                    <h3>保存/読込 (Pro版)</h3>
+                    <p>データを複数保存し、名前をつけて呼び出すことができます。</p>
+                    <div id="saveSlots"></div>
+                     <div class="btn-row">
+                        <input type="text" id="saveName" placeholder="保存名を入力">
+                        <button class="btn" id="saveSlotBtn">この名前で保存</button>
+                    </div>
+                    <button class="btn secondary sm" id="closeModalBtn">閉じる</button>
+                </div>
+            </div>
+            <div class="lock-overlay hidden" id="proLock">
+                 <div class="pro-lock">
+                     <p>この機能はPro版で利用できます</p>
+                     <button class="btn" id="proLeadBtn2">Pro版の詳細を見る</button>
+                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© 放デイの書類屋さん（houday.jp）</footer>
+
+    <script src="../../common/license.js" data-app="shoguu-sim"></script>
+    <script src="app.js"></script>
+</body>
+</html>

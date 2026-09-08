@@ -1,0 +1,186 @@
+@charset "UTF-8";
+
+/* 基本レイアウト */
+body {
+  background-color: #f4f5f7;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* アコーディオン形式のカテゴリ */
+details > summary {
+  padding: 0.5rem 1rem;
+  background-color: #e9ecef;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+details[open] > summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+details > :not(summary) {
+  border: 1px solid #dee2e6;
+  border-top: none;
+  padding: 1rem;
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+
+/* チェック項目 */
+.check-item {
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.check-item-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.check-item p {
+  margin: 0 0 0.5rem;
+}
+
+.check-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8em;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+}
+
+.check-item-meta .basis {
+  font-style: italic;
+}
+
+.check-item-answer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.check-item-answer label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.memo-details {
+  margin-top: 0.5rem;
+}
+.memo-details summary {
+    font-size: 0.8rem;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.memo {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ヘッダー情報入力欄 */
+#infoInputs .row {
+  align-items: center;
+}
+#infoInputs label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+/* 進捗バー */
+#progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+#progress {
+  flex-grow: 1;
+}
+
+/* 結果表示 */
+.result-kpis {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-around;
+  text-align: center;
+}
+.result-kpis .kpi .value {
+  font-size: 2.5rem;
+}
+
+/* 改善計画 */
+#improvementPlan textarea, #improvementPlan input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#planProNote button {
+  margin-left: 1rem;
+}
+
+
+/* 印刷用スタイル */
+@media print {
+  body {
+    background-color: #fff;
+    font-size: 10pt;
+  }
+  .app-header, .btn-row, .note, #infoInputs button {
+    display: none !important;
+  }
+  .container {
+    padding: 0;
+  }
+  .card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+  details > summary {
+    background-color: #f8f9fa;
+  }
+  details[open] {
+    page-break-inside: avoid;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* 印刷用のヘッダーを生成 */
+  #print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+  }
+
+  #improvementPlan textarea, #improvementPlan input[type="text"], #improvementPlan input[type="date"] {
+    border: none;
+    background: #fff;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  #improvementPlan td, #improvementPlan th {
+    vertical-align: top;
+  }
+
+}
+
+#print-header {
+  display: none;
+}

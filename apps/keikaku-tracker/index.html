@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>個別支援計画・受給者証 期限トラッカー</title>
+<meta name="description" content="放デイ・児発の児童ごとに個別支援計画の更新期限・モニタリング期限・受給者証の有効期限を一覧管理。期限超過を色分けし、今月のやることを時系列で表示。">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#d97706">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../../common/theme.css">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<header class="app-header"><h1>個別支援計画・受給者証 期限トラッカー</h1><span class="badge" id="planBadge">Free</span><button class="btn sm secondary" id="proBtn">Pro版</button></header>
+<div class="container">
+  <div class="card no-print">
+    <div class="kpi">
+      <div class="tile ng"><div class="v" id="kpiOverdue">0</div><div class="l">期限超過</div></div>
+      <div class="tile warn"><div class="v" id="kpiSoon">0</div><div class="l">30日以内</div></div>
+      <div class="tile"><div class="v" id="kpiCert">0</div><div class="l">受給者証 60日以内</div></div>
+      <div class="tile"><div class="v" id="kpiTotal">0</div><div class="l">登録児童数</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="addBtn">＋ 児童を登録</button>
+      <button class="btn secondary" id="csvImportBtn">CSV取込</button>
+      <button class="btn secondary" id="sampleCsvBtn">サンプルCSV</button>
+      <button class="btn secondary" id="csvExportBtn">CSV出力 <span class="pro-tag">Pro</span></button>
+      <button class="btn secondary" id="icsExportBtn">カレンダー(ICS)出力 <span class="pro-tag">Pro</span></button>
+      <button class="btn ghost" id="jsonExportBtn">JSONバックアップ</button>
+      <button class="btn ghost" id="jsonImportBtn">JSON復元</button>
+      <button class="btn ghost" id="printBtn">印刷</button>
+      <button class="btn ghost" id="settingsBtn">設定</button>
+      <input type="file" id="csvFile" accept=".csv,text/csv" class="hidden">
+      <input type="file" id="jsonFile" accept=".json,application/json" class="hidden">
+    </div>
+    <div class="alert hidden" id="limitAlert">Free版は児童10名まで登録できます。Pro版なら無制限です。 <button class="btn sm" id="limitProBtn">Pro版を見る</button></div>
+  </div>
+
+  <div class="card">
+    <h2>児童一覧 <span class="muted" id="listCount"></span></h2>
+    <div class="row no-print filters">
+      <div><label>事業所</label><select id="filterOffice"><option value="">すべて</option></select></div>
+      <div><label>ステータス</label><select id="filterStatus"><option value="">すべて</option><option value="ng">期限超過</option><option value="warn">30日以内</option><option value="attention">31〜60日</option><option value="ok">余裕あり</option></select></div>
+      <div><label>並び順</label><select id="sortOrder"><option value="deadline">直近期限順</option><option value="name">氏名順</option><option value="office">事業所順</option></select></div>
+    </div>
+    <div class="table-wrap"><table id="childTable">
+      <thead><tr><th>氏名</th><th>事業所</th><th>利用開始</th><th>計画作成日</th><th>次回計画期限</th><th>最終モニタリング</th><th>次回モニタリング</th><th>受給者証期限</th><th>状態</th><th class="no-print">操作</th></tr></thead>
+      <tbody id="childBody"></tbody>
+    </table></div>
+    <p class="muted" id="emptyMsg">まだ児童が登録されていません。「＋ 児童を登録」または「CSV取込」から始めてください。</p>
+  </div>
+
+  <div class="card">
+    <h2>やることタイムライン <span class="muted">（期限超過〜60日先）</span></h2>
+    <div id="timeline"></div>
+  </div>
+
+  <div class="note">期限計算は一般的な運用ルール（個別支援計画・モニタリングは6か月ごと、受給者証は期限60日前に更新準備）です。自治体の指導要領・受給者証の記載を優先してください。</div>
+</div>
+
+<!-- 児童編集モーダル -->
+<div class="modal-bg hidden" id="editModal">
+  <div class="modal modal-wide">
+    <h2 id="modalTitle">児童を登録</h2>
+    <form id="editForm">
+      <input type="hidden" id="fId">
+      <div class="row">
+        <div><label>氏名（イニシャル可）*</label><input type="text" id="fName" required></div>
+        <div><label>事業所名</label><input type="text" id="fOffice" list="officeList"><datalist id="officeList"></datalist></div>
+      </div>
+      <div class="row">
+        <div><label>受給者証番号</label><input type="text" id="fCertNo"></div>
+        <div><label>受給者証 有効期限</label><input type="date" id="fCertExpire"></div>
+      </div>
+      <div class="row">
+        <div><label>利用開始日</label><input type="date" id="fStart"></div>
+        <div><label>個別支援計画 作成日（同意日）</label><input type="date" id="fPlan"></div>
+        <div><label>最終モニタリング日</label><input type="date" id="fMon"></div>
+      </div>
+      <div class="row">
+        <div><label>担当児発管</label><input type="text" id="fManager"></div>
+        <div><label>メモ</label><input type="text" id="fMemo"></div>
+      </div>
+      <div id="historyBox" class="muted"></div>
+      <div class="btn-row"><button type="submit" class="btn">保存</button><button type="button" class="btn ghost" id="cancelBtn">キャンセル</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- 更新記録モーダル -->
+<div class="modal-bg hidden" id="recordModal">
+  <div class="modal">
+    <h2 id="recordTitle">更新を記録</h2>
+    <p class="muted" id="recordDesc"></p>
+    <label>実施日</label><input type="date" id="recordDate">
+    <div class="btn-row"><button class="btn" id="recordSaveBtn">記録する</button><button class="btn ghost" id="recordCancelBtn">キャンセル</button></div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div class="modal-bg hidden" id="settingsModal">
+  <div class="modal">
+    <h2>設定</h2>
+    <div class="row">
+      <div><label>計画の見直し間隔</label><select id="sPlanMonths"><option value="6">6か月</option><option value="3">3か月</option></select></div>
+      <div><label>モニタリング間隔</label><select id="sMonMonths"><option value="6">6か月</option><option value="3">3か月</option><option value="1">1か月</option></select></div>
+    </div>
+    <div class="btn-row"><button class="btn" id="settingsSaveBtn">保存</button><button class="btn ghost" id="settingsCancelBtn">閉じる</button><button class="btn danger" id="clearAllBtn">全データ削除</button></div>
+  </div>
+</div>
+
+<footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© 放デイの書類屋さん（houday.jp）</footer>
+<script src="../../common/license.js" data-app="keikaku-tracker"></script>
+<script src="./app.js"></script>
+</body>
+</html>

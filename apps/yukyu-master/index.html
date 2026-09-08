@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>有給休暇マスター</title>
+  <link rel="stylesheet" href="../../common/theme.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>有給休暇マスター</h1>
+    <span class="badge" id="planBadge">Free</span>
+    <button class="btn sm secondary" id="proBtn">Pro版</button>
+  </header>
+
+  <main class="container">
+
+    <div class="row">
+      <div class="col-md-4">
+        <h2>社員一覧</h2>
+        <div id="employeeList"></div>
+        <div class="btn-row">
+            <button id="addEmployeeBtn" class="btn">社員を追加</button>
+        </div>
+        <div id="employeeLimitNote" class="note hidden">
+            Free版では3名まで登録できます。Pro版では無制限に登録可能です。
+            <button class="btn sm" id="proCtaEmployee">Pro版を見る</button>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div id="employeeDetails" class="hidden">
+            <h2 id="employeeNameHeader"></h2>
+            
+            <div class="card">
+                <h3>サマリー</h3>
+                <div class="row kpi-container" id="kpi-summary">
+                    <div class="kpi">
+                        <label>現在の残日数</label>
+                        <span id="kpi-remaining-days">--</span>日
+                    </div>
+                    <div class="kpi">
+                        <label>今年度の取得日数</label>
+                        <span id="kpi-taken-this-year">--</span>日
+                    </div>
+                    <div class="kpi">
+                        <label>5日義務</label>
+                        <span id="kpi-5day-obligation">--</span>
+                    </div>
+                     <div class="kpi">
+                        <label>次の時効消滅</label>
+                        <span id="kpi-next-expiry">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>付与スケジュール</h3>
+                <div class="table-wrap">
+                    <table id="grant-schedule-table">
+                        <thead>
+                            <tr>
+                                <th>回数</th>
+                                <th>付与日</th>
+                                <th>付与日数</th>
+                                <th>8割未満</th>
+                                <th>時効消滅日</th>
+                                <th>5日義務期限</th>
+                                <th>義務達成</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grant-schedule-body">
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="note">
+                    付与日ごとに「8割未満で不付与」にチェックを入れると、その年の付与日数が0になります。
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>取得日の登録</h3>
+                <form id="add-leave-form" class="row">
+                    <input type="date" id="leave-date" required>
+                    <select id="leave-days">
+                        <option value="1">1日</option>
+                        <option value="0.5">0.5日</option>
+                    </select>
+                    <button type="submit" class="btn">登録</button>
+                </form>
+                <div class="table-wrap">
+                    <table id="leave-history-table">
+                        <thead>
+                            <tr>
+                                <th>取得日</th>
+                                <th>日数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leave-history-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                 <h3>設定</h3>
+                <div class="row">
+                    <label>消化順序:</label>
+                    <select id="consumption-order-select">
+                        <option value="fifo">古い付与分から消化 (FIFO)</option>
+                        <option value="lifo">新しい付与分から消化 (LIFO)</option>
+                    </select>
+                </div>
+                 <div class="row">
+                    <label>基準日統一:</label>
+                    <input type="checkbox" id="unify-grant-date-checkbox">
+                    <select id="unify-grant-date-select" class="hidden">
+                        <option value="04-01">毎年4月1日</option>
+                        <option value="10-01">毎年10月1日</option>
+                    </select>
+                     <span class="note">（Pro版機能）</span>
+                </div>
+            </div>
+             <div class="card">
+                <h3>データ管理</h3>
+                <div class="btn-row">
+                    <button id="print-ledger-btn" class="btn secondary">管理簿を印刷</button>
+                    <button id="csv-export-btn" class="btn secondary">CSV出力 (Pro)</button>
+                    <button id="json-backup-btn" class="btn ghost">JSONバックアップ</button>
+                    <button id="json-restore-btn" class="btn ghost">JSON復元</button>
+                </div>
+            </div>
+        </div>
+        <div id="no-employee-selected" class="card muted">
+            <p>社員を選択してください</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h2>アラート一覧</h2>
+            <div id="alerts-container" class="table-wrap">
+                 <table id="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>社員</th>
+                            <th>アラート内容</th>
+                            <th>期限・日付</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-body">
+                    </tbody>
+                </table>
+            </div>
+            <div id="no-alerts" class="muted">
+                <p>現在アラートはありません。</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="note">
+        法定最低基準であり就業規則で上回る場合はそちらが優先されます。
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>
+    © 放デイの書類屋さん（houday.jp）
+  </footer>
+
+  <!-- Modal for Employee -->
+  <div id="employeeModal" class="modal-bg hidden">
+    <div class="modal">
+        <h3 id="modal-title">社員の追加</h3>
+        <form id="employeeForm">
+            <input type="hidden" id="employeeId">
+            <label for="employeeName">氏名:</label>
+            <input type="text" id="employeeName" required>
+
+            <label for="hireDate">入社日:</label>
+            <input type="date" id="hireDate" required>
+
+            <label for="workCategory">区分:</label>
+            <select id="workCategory" required>
+                <option value="standard">週30h以上・週5日以上</option>
+                <option value="part_4">週4日</option>
+                <option value="part_3">週3日</option>
+                <option value="part_2">週2日</option>
+                <option value="part_1">週1日</option>
+            </select>
+            
+            <label for="annualPrescribedDays">年間所定日数 (任意):</label>
+            <input type="number" id="annualPrescribedDays" placeholder="例: 217">
+
+            <div class="btn-row">
+                <button type="submit" class="btn">保存</button>
+                <button type="button" id="cancelModal" class="btn secondary">キャンセル</button>
+                <button type="button" id="deleteEmployeeBtn" class="btn danger hidden">削除</button>
+            </div>
+        </form>
+    </div>
+  </div>
+  
+  <input type="file" id="json-restore-input" class="hidden" accept=".json">
+
+  <script src="../../common/license.js" data-app="yukyu-master"></script>
+  <script src="app.js"></script>
+</body>
+</html>

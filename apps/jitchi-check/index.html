@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>実地指導（運営指導）セルフチェック</title>
+  <link rel="stylesheet" href="../../common/theme.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>実地指導セルフチェック</h1>
+    <span class="badge" id="planBadge">Free</span>
+    <button class="btn sm secondary" id="proBtn">Pro版</button>
+  </header>
+
+  <main class="container">
+
+    <div id="print-header">
+      <h1>実地指導（運営指導）セルフチェック 点検レポート</h1>
+      <div id="print-info"></div>
+    </div>
+    
+    <div class="card">
+      <h2>基本情報</h2>
+      <div id="infoInputs" class="row">
+        <label for="officeName">事業所名:</label>
+        <input type="text" id="officeName">
+        <label for="officeType">事業種別:</label>
+        <select id="officeType">
+          <option>放デイ</option>
+          <option>児発</option>
+          <option>多機能</option>
+        </select>
+        <label for="checkDate">点検日:</label>
+        <input type="date" id="checkDate">
+        <label for="checkerName">点検者:</label>
+        <input type="text" id="checkerName">
+      </div>
+      <div class="row no-print" id="officeSlots" style="align-items:flex-end">
+        <div><label>保存済み事業所 <span class="pill muted">Pro</span></label><select id="slotSelect"><option value="">（未保存）</option></select></div>
+        <div class="btn-row" style="margin-top:0"><button class="btn sm secondary" id="slotSaveBtn">現在の内容を事業所名で保存</button><button class="btn sm ghost" id="slotLoadBtn">切替</button><button class="btn sm ghost" id="slotNewBtn">新規（空にする）</button><button class="btn sm danger" id="slotDeleteBtn">削除</button></div>
+      </div>
+      <p class="note">事業所が複数ある場合、Pro版なら事業所ごとに点検結果を保存・切替できます（事業所名で保存）。</p>
+    </div>
+
+    <div class="card">
+        <h2>チェックリスト</h2>
+        <div id="progress-bar-container">
+            <label for="progress">進捗:</label>
+            <progress id="progress" value="0" max="60"></progress>
+            <span id="progressLabel">0 / 60</span>
+        </div>
+        <div id="checklistContainer">
+            <!-- チェックリスト項目がJSによって挿入されます -->
+        </div>
+    </div>
+
+    <div class="card">
+      <h2>点検結果</h2>
+      <div class="result-kpis">
+        <div class="kpi">
+          <div class="label">総合スコア</div>
+          <div class="value"><span id="overallScore">0.0</span>%</div>
+          <div class="note">（「できている」/ 対象項目数）</div>
+        </div>
+        <div class="kpi">
+          <div class="label">リスク「高」の未達項目</div>
+          <div class="value"><span id="highRiskCount">0</span>件</div>
+          <div class="note">（減算・返還・指定取消リスク）</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="table-wrap">
+          <h3>カテゴリ別スコア</h3>
+          <table id="categoryScores">
+            <thead>
+              <tr>
+                <th>カテゴリ</th>
+                <th>達成率</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- カテゴリ別スコアがJSによって挿入されます -->
+            </tbody>
+          </table>
+        </div>
+        <div class="not-compliant-container">
+            <h3>未達項目リスト（リスク順）</h3>
+            <ul id="notCompliantList">
+                <!-- 未達項目がJSによって挿入されます -->
+            </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>改善計画</h2>
+      <div class="table-wrap">
+        <table id="improvementPlan">
+          <thead>
+            <tr>
+              <th>未達項目</th>
+              <th>対応内容</th>
+              <th>担当</th>
+              <th>期限</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 改善計画がJSによって挿入されます -->
+          </tbody>
+        </table>
+      </div>
+      <div id="planProNote" class="note hidden">
+        改善計画の入力・保存はPro版の機能です。
+        <button class="btn sm">アップグレード</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="printBtn" class="btn">点検結果を印刷</button>
+      <button id="csvBtn" class="btn secondary" title="Pro版で利用できます" disabled>CSV出力 (Pro)</button>
+      <button id="resetBtn" class="btn danger">回答をリセット</button>
+    </div>
+    
+    <p class="note">本チェックリストは一般的な指導事項をまとめたものであり、内容の正確性・完全性を保証するものではありません。各自治体の最新の運営指導（実地指導）要領や、厚生労働省の告示・Q&A等を必ず併せてご確認ください。</p>
+
+  </main>
+
+  <footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© 放デイの書類屋さん（houday.jp）</footer>
+
+  <script src="../../common/license.js" data-app="jitchi-check"></script>
+  <script src="app.js"></script>
+</body>
+</html>

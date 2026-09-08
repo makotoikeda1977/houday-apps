@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>houday apps ── 放デイ・児発と社労士受験の実務ツール</title>
+<meta name="description" content="放課後等デイサービス・児童発達支援の経営者と社労士受験生のための、ブラウザで動く実務ツール集。処遇改善加算シミュレーター、有給休暇マスター、実地指導セルフチェック、個別支援計画期限トラッカー、3周法タイマー。">
+<link rel="stylesheet" href="./common/theme.css">
+<style>
+.hero{padding:40px 16px 24px;text-align:center}
+.hero h1{font-size:26px;margin:0 0 8px}
+.hero p{color:var(--muted);margin:0 auto;max-width:600px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.app{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+.app .ic{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700}
+.app h2{font-size:16px;margin:4px 0 0}
+.app p{margin:0;font-size:13px;color:var(--muted);flex:1}
+.app .price{font-size:13px}
+.app .price b{font-size:15px;color:var(--text)}
+.tag{font-size:11px;color:#3730a3;background:#eef2ff;border-radius:999px;padding:2px 8px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>houday apps</h1>
+  <p>放デイ・児発の経営者と社労士受験生のための「明日から使える」ブラウザツール。インストール不要・データは端末内に保存・無料で使い始められます。</p>
+</div>
+<div class="container">
+  <div class="grid">
+    <a class="app" href="./apps/shoguu-sim/" style="text-decoration:none;color:inherit">
+      <div class="ic" style="background:#2563eb">¥</div><span class="tag">放デイ・児発</span>
+      <h2>処遇改善加算 配分シミュレーター</h2>
+      <p>令和8年6月改定の加算率(Ⅰイ〜Ⅳ)で月額・年間の加算見込みを試算し、職員別の配分案と月額賃金改善要件・(ロ)区分要件の達成判定まで。</p>
+      <div class="price">無料: 職員5名まで ／ Pro <b>¥2,980</b> 買い切り</div>
+    </a>
+    <a class="app" href="./apps/yukyu-master/" style="text-decoration:none;color:inherit">
+      <div class="ic" style="background:#16a34a">休</div><span class="tag">労務</span>
+      <h2>有給休暇マスター</h2>
+      <p>入社日と勤務形態から付与日・日数(比例付与対応)・時効・年5日取得義務の期限を自動計算。取得登録で残日数と管理簿を作成。</p>
+      <div class="price">無料: 社員3名まで ／ Pro <b>¥1,480</b> 買い切り</div>
+    </a>
+    <a class="app" href="./apps/jitchi-check/" style="text-decoration:none;color:inherit">
+      <div class="ic" style="background:#dc2626">✓</div><span class="tag">放デイ・児発</span>
+      <h2>実地指導セルフチェック</h2>
+      <p>人員・運営・個別支援計画・虐待防止・BCP・加算要件など60項目を「できている／できていない」で点検。減算リスク順に未達を並べ、改善計画つきで印刷。</p>
+      <div class="price">無料: 点検・印刷 ／ Pro <b>¥2,980</b> 買い切り</div>
+    </a>
+    <a class="app" href="./apps/keikaku-tracker/" style="text-decoration:none;color:inherit">
+      <div class="ic" style="background:#d97706">期</div><span class="tag">放デイ・児発</span>
+      <h2>個別支援計画 期限トラッカー</h2>
+      <p>児童ごとの計画更新期限・モニタリング期限・受給者証期限を一覧管理。期限超過や30日以内を色分けし、今月のやることを時系列で表示。</p>
+      <div class="price">無料: 児童10名まで ／ Pro <b>¥1,980</b> 買い切り</div>
+    </a>
+    <a class="app" href="./apps/sanshu-timer/" style="text-decoration:none;color:inherit">
+      <div class="ic" style="background:#7c3aed">3</div><span class="tag">社労士受験</span>
+      <h2>社労士 3周法タイマー</h2>
+      <p>択一210分・選択式80分を3周で回す時間配分トレーナー。科目チェックポイントで遅れを可視化し、L1/L2/L3の仕分けを本番同様に訓練。</p>
+      <div class="price">無料: 履歴3件 ／ Pro <b>¥980</b> 買い切り</div>
+    </a>
+  </div>
+  <div class="card">
+    <h2>Pro版について</h2>
+    <p class="muted">各アプリの「Pro版」ボタンからライセンスキーを入力すると、その端末で上限が解除されます。キーはnoteの有料記事でお渡しします（買い切り・月額なし）。データはすべてブラウザ内(localStorage)に保存され、サーバーへは送信されません。端末を変える場合はJSONバックアップをご利用ください。デジタル商品のため購入後の返金はできません。価格・条件は全国一律です。</p>
+  </div>
+</div>
+<footer class="app-footer">
+  各ツールは目安の計算・確認を支援するものです。最終判断は指定権者・所轄官庁・専門家にご確認ください。<br>
+  <a href="./tokushoho.html">特定商取引法に基づく表記</a><br>運営: 放デイの書類屋さん（<a href="https://houday.jp/" target="_blank" rel="noopener">houday.jp</a>）／ 3周法タイマー: シャロッシング
+</footer>
+</body>
+</html>

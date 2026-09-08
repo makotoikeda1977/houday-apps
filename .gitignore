@@ -1,0 +1,5 @@
+.DS_Store
+*.log
+apps/*/COMMON.md
+apps/*/SPEC.md
+.gemini/

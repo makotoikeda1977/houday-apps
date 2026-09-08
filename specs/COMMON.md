@@ -1,0 +1,15 @@
+# 共通仕様（全アプリ共通・必ず守る）
+- 技術: 静的HTML + Vanilla JS + CSS。ビルド不要・外部CDN禁止・フレームワーク禁止・ES modules不使用（file://でも動くこと）。
+- ファイル構成（このディレクトリ直下に作る）: `index.html` / `app.js` / `app.css`。manifest・sw・iconsは作らない（別途用意する）。
+- index.html の <head> で `../../common/theme.css` を読み込み、その後 `app.css`。</body>直前で `<script src="../../common/license.js" data-app="{{SLUG}}"></script>` の後に `app.js`。
+- theme.css の既存クラスを活用: .app-header .badge .container .card .row .btn(.secondary/.ghost/.danger/.sm) .btn-row table .table-wrap .pill(.ok/.warn/.ng/.muted) .kpi .tile .muted .note .alert .hidden .pro-lock .lock-overlay .modal-bg .modal .app-footer
+- ヘッダー: `<header class="app-header"><h1>アプリ名</h1><span class="badge" id="planBadge">Free</span><button class="btn sm secondary" id="proBtn">Pro版</button></header>`。Pro時はバッジを「Pro」(class badge pro)にし、proBtnは「Pro有効」表示で解除ボタンは設けない（Pro表示クリックで解除確認ダイアログ→HDLicense.deactivate()）。
+- Pro判定: `window.HDLicense.isPro()`。購入導線: `HDLicense.prompt({buyUrl: BUY_URL})`。app.js先頭に `var BUY_URL = 'https://note.com/houday';` を定数として置く（後で差し替える）。`HDLicense.onChange(fn)` で再描画。
+- Freeの制限に当たったら .note か .alert で「Pro版なら○○できます」＋ボタンを出す（機能を隠さない、押すとprompt）。
+- データ保存: localStorage、キーは `hd_{{SLUG}}_` プレフィックス。JSON.parseは必ずtry/catch。
+- モバイルファースト（iPhone幅375pxで崩れない）、印刷対応（@media printでボタン類非表示、theme.css側に基本あり）。
+- 数値は3桁区切り表示（toLocaleString('ja-JP')）。日付は YYYY/MM/DD 表示、入力は<input type=date>。
+- 免責フッター: `<footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© {{OWNER}}</footer>`
+- コードは日本語コメントを適度に。関数は小さく。グローバル汚染は1つの即時関数内に収める。
+- 完成後 `node --check app.js` で構文確認し、index.htmlに未定義IDの参照が無いか自己点検すること。
+- 品質基準: 実務者が明日から使えるレベル。ダミーの「準備中」機能を残さない。
