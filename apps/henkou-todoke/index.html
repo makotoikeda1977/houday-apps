@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>放デイ・児発 変更届 作成ツール</title>
+<meta name="description" content="放課後等デイサービス・児童発達支援の変更届出書を、変更事項を選ぶだけで作成。提出期限（変更から10日以内）を自動計算し、必要な添付書類チェックリストを自動生成。様式どおりに印刷・PDF保存。">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0e7490">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="stylesheet" href="../../common/theme.css">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<header class="app-header"><h1>変更届 作成ツール（放デイ・児発）</h1><span class="badge" id="planBadge">Free</span><button class="btn sm secondary" id="proBtn">Pro版</button></header>
+<div class="container">
+
+<!-- ===== 一覧ビュー ===== -->
+<div id="viewList">
+  <div class="card no-print">
+    <div class="kpi">
+      <div class="tile ng"><div class="v" id="kpiOverdue">0</div><div class="l">提出期限 超過</div></div>
+      <div class="tile warn"><div class="v" id="kpiSoon">0</div><div class="l">期限まで7日以内</div></div>
+      <div class="tile"><div class="v" id="kpiDraft">0</div><div class="l">未提出（下書き）</div></div>
+      <div class="tile"><div class="v" id="kpiYear">0</div><div class="l">今年度の提出数</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="newBtn">＋ 新しい変更届</button>
+      <button class="btn secondary" id="officeBtn">事業所の登録・編集</button>
+      <button class="btn secondary" id="csvExportBtn">提出台帳CSV <span class="pro-tag">Pro</span></button>
+      <button class="btn ghost" id="jsonExportBtn">JSONバックアップ</button>
+      <button class="btn ghost" id="jsonImportBtn">JSON復元</button>
+      <button class="btn ghost" id="settingsBtn">設定</button>
+      <input type="file" id="jsonFile" accept=".json,application/json" class="hidden">
+    </div>
+    <div class="alert hidden" id="limitAlert">Free版は事業所1件・変更届3件まで保存できます。Pro版なら無制限です。 <button class="btn sm" id="limitProBtn">Pro版を見る</button></div>
+  </div>
+
+  <div class="card">
+    <h2>変更届一覧 <span class="muted" id="listCount"></span></h2>
+    <div class="row no-print filters">
+      <div><label>事業所</label><select id="filterOffice"><option value="">すべて</option></select></div>
+      <div><label>状態</label><select id="filterStatus"><option value="">すべて</option><option value="draft">未提出</option><option value="submitted">提出済み</option><option value="accepted">受理済み</option></select></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>事業所</th><th>変更事項</th><th>変更年月日</th><th>提出期限</th><th>状態</th><th class="no-print">操作</th></tr></thead>
+      <tbody id="listBody"></tbody>
+    </table></div>
+    <p class="muted" id="emptyMsg">まだ変更届がありません。まず「事業所の登録・編集」で事業所を登録し、「＋ 新しい変更届」から作成してください。</p>
+  </div>
+
+  <div class="card">
+    <h2>変更事項と添付書類の早見表</h2>
+    <p class="muted">さいたま市の「変更届添付書類一覧」を基に整理しています（○＝必ず添付、△＝該当する場合に添付）。自治体により様式・添付書類が異なるため、提出先の手引きで最終確認してください。</p>
+    <div id="refTable"></div>
+  </div>
+
+  <div class="note">変更届は<b>変更の日から10日以内</b>に指定権者へ提出します（児童福祉法第21条の5の20）。事業所の所在地変更・定員変更など事前相談が必要な事項、加算の変更（体制届は原則前月15日まで）は別途期限があります。</div>
+</div>
+
+<!-- ===== 編集ビュー ===== -->
+<div id="viewEdit" class="hidden">
+  <div class="card no-print">
+    <div class="card-head"><h2 id="editTitle" style="margin:0;padding:0;border:0">変更届を作成</h2><button class="btn sm ghost" id="backBtn">← 一覧へ戻る</button></div>
+    <div class="row">
+      <div><label>事業所 *</label><select id="fOffice"></select></div>
+      <div><label>変更年月日 *</label><input type="date" id="fChangeDate"></div>
+      <div><label>届出日（書類の日付）</label><input type="date" id="fSubmitDate"></div>
+      <div><label>状態</label><select id="fStatus"><option value="draft">未提出（下書き）</option><option value="submitted">提出済み</option><option value="accepted">受理済み</option></select></div>
+    </div>
+    <div id="deadlineBox" class="deadline"></div>
+  </div>
+
+  <div class="card no-print">
+    <h2>変更があった事項 <span class="muted">（該当するものすべてにチェック）</span></h2>
+    <div id="itemsBox" class="items"></div>
+  </div>
+
+  <div class="card no-print">
+    <h2>変更の内容 <span class="muted">（変更前 → 変更後）</span></h2>
+    <p class="muted" id="contentHint">上で変更事項にチェックすると、ここに入力欄が表示されます。「ひな形を挿入」で氏名・生年月日などの記入枠を入れられます。</p>
+    <div id="contentBox"></div>
+  </div>
+
+  <div class="card no-print">
+    <h2>添付書類チェックリスト <span class="muted">（変更事項から自動生成）</span></h2>
+    <p class="muted" id="attachHint">変更事項をチェックすると必要書類が表示されます。準備できたものにチェックを入れてください。</p>
+    <div id="attachBox"></div>
+    <div class="row" style="margin-top:10px"><div><label>メモ（提出方法・担当者とのやり取りなど）</label><textarea id="fMemo" rows="2"></textarea></div></div>
+  </div>
+
+  <div class="card no-print">
+    <div class="btn-row">
+      <button class="btn" id="saveBtn">保存</button>
+      <button class="btn secondary" id="printFormBtn">届出書を印刷・PDF</button>
+      <button class="btn secondary" id="printCheckBtn">チェックリストを印刷</button>
+      <button class="btn ghost" id="backBtn2">一覧へ戻る</button>
+    </div>
+    <p class="muted" id="saveMsg"></p>
+  </div>
+</div>
+
+</div>
+
+<!-- ===== 印刷エリア ===== -->
+<div id="printArea" class="print-only"></div>
+
+<!-- 事業所モーダル -->
+<div class="modal-bg hidden" id="officeModal">
+  <div class="modal modal-wide">
+    <h2>事業所の登録・編集</h2>
+    <div class="row">
+      <div><label>登録済みの事業所</label><select id="oSelect"><option value="">＋ 新規登録</option></select></div>
+    </div>
+    <h3 class="sub-h">事業者（設置者）</h3>
+    <div class="row">
+      <div><label>法人名 *</label><input type="text" id="oCorp" placeholder="株式会社○○"></div>
+      <div><label>主たる事務所の所在地</label><input type="text" id="oCorpAddr" placeholder="埼玉県さいたま市○区…"></div>
+    </div>
+    <div class="row">
+      <div><label>代表者 職名</label><input type="text" id="oRepTitle" placeholder="代表取締役"></div>
+      <div><label>代表者 氏名</label><input type="text" id="oRep"></div>
+    </div>
+    <h3 class="sub-h">指定内容を変更する事業所</h3>
+    <div class="row">
+      <div><label>事業所名 *</label><input type="text" id="oName"></div>
+      <div><label>事業所番号（10桁）</label><input type="text" id="oNo" inputmode="numeric" maxlength="10" placeholder="1150000000"></div>
+    </div>
+    <div class="row">
+      <div><label>事業所 所在地</label><input type="text" id="oAddr"></div>
+    </div>
+    <div class="row">
+      <div><label>支援の種類（該当をチェック）</label>
+        <div class="checks"><label><input type="checkbox" id="oSvcJh"> 児童発達支援</label><label><input type="checkbox" id="oSvcHd" checked> 放課後等デイサービス</label><label><input type="checkbox" id="oSvcHh"> 保育所等訪問支援</label><label><input type="checkbox" id="oSvcMd"> 医療型児童発達支援</label></div>
+      </div>
+    </div>
+    <h3 class="sub-h">提出先・担当者</h3>
+    <div class="row">
+      <div><label>宛先</label><input type="text" id="oDest" placeholder="さいたま市長"></div>
+      <div><label>様式番号</label><input type="text" id="oFormNo" placeholder="様式第３号"></div>
+    </div>
+    <div class="row">
+      <div><label>申請事務担当者 氏名</label><input type="text" id="oStaff"></div>
+      <div><label>TEL</label><input type="text" id="oTel"></div>
+      <div><label>FAX</label><input type="text" id="oFax"></div>
+    </div>
+    <div class="btn-row"><button class="btn" id="oSaveBtn">保存</button><button class="btn ghost" id="oCancelBtn">閉じる</button><button class="btn danger hidden" id="oDelBtn">この事業所を削除</button></div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div class="modal-bg hidden" id="settingsModal">
+  <div class="modal">
+    <h2>設定</h2>
+    <div class="row">
+      <div><label>提出期限（変更日から何日以内）</label><input type="number" id="sDays" min="1" max="60" value="10"></div>
+      <div><label>日付の表記</label><select id="sEra"><option value="wareki">和暦（令和）</option><option value="seireki">西暦</option></select></div>
+    </div>
+    <div class="btn-row"><button class="btn" id="settingsSaveBtn">保存</button><button class="btn ghost" id="settingsCancelBtn">閉じる</button><button class="btn danger" id="clearAllBtn">全データ削除</button></div>
+  </div>
+</div>
+
+<footer class="app-footer">本ツールは目安の計算・確認を支援するものです。最終的な判断は指定権者・所轄官庁・専門家にご確認ください。<br>© 放デイの書類屋さん（houday.jp）</footer>
+<script src="../../common/license.js" data-app="henkou-todoke"></script>
+<script src="./app.js"></script>
+</body>
+</html>

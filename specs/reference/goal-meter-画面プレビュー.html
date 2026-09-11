@@ -1,0 +1,563 @@
+<title>ゴールメーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EDEFF3; --card:#FBFCFD; --card-2:#E4E8EE;
+  --ink:#161C27; --ink-2:#3D4655; --ink-3:#6B7585;
+  --rule:#C9D0DA; --rule-soft:#DDE2EA;
+  --shu:#C13B2C; --ai:#27557F; --koke:#3F6B57;
+  --shu-bg:#F7E4E1;
+  --shadow:0 1px 2px rgba(22,28,39,.06), 0 8px 24px -16px rgba(22,28,39,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161D; --card:#1A1F29; --card-2:#232935;
+    --ink:#E6E9EF; --ink-2:#BCC4D0; --ink-3:#8B94A3;
+    --rule:#333B49; --rule-soft:#272E3A;
+    --shu:#E8776A; --ai:#7FAAD6; --koke:#7FB79B;
+    --shu-bg:#33201E;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161D; --card:#1A1F29; --card-2:#232935;
+  --ink:#E6E9EF; --ink-2:#BCC4D0; --ink-3:#8B94A3;
+  --rule:#333B49; --rule-soft:#272E3A;
+  --shu:#E8776A; --ai:#7FAAD6; --koke:#7FB79B;
+  --shu-bg:#33201E;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.9);
+}
+
+/* ウィジェット内部は端末の実際の色。テーマで変えない。 */
+.w{
+  --wbg1:#161C27; --wbg2:#0F131B;
+  --wink:#E6E9EF; --wink2:#9AA3B2;
+  --waccent:#C13B2C; --wgood:#3F6B57; --wline:#27557F; --wrule:#333B49;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans",system-ui,sans-serif;
+  font-size:16px; line-height:1.85; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 24px 90px}
+@media(max-width:640px){.wrap{padding:0 16px 64px}}
+
+header{border-bottom:1px solid var(--rule);padding:52px 0 26px;margin-bottom:36px}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
+}
+h1{
+  font-family:"Shippori Mincho B1","Hiragino Mincho ProN",serif;font-weight:600;
+  font-size:clamp(28px,5.6vw,40px);line-height:1.3;margin:12px 0 10px;text-wrap:balance;
+}
+.lede{color:var(--ink-2);font-size:16px;max-width:58ch;margin:0}
+.note-real{
+  margin-top:20px;padding:11px 15px;border-left:3px solid var(--shu);
+  background:var(--shu-bg);border-radius:0 3px 3px 0;font-size:13.5px;color:var(--ink-2);
+}
+.note-real b{color:var(--ink)}
+
+section{margin:0 0 56px}
+.shead{display:flex;align-items:baseline;gap:13px;border-bottom:1.5px solid var(--ink);padding-bottom:8px;margin-bottom:22px}
+.snum{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.1em;color:var(--shu);flex:none}
+h2{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:clamp(19px,3.4vw,23px);margin:0;line-height:1.4}
+p{margin:0 0 14px}
+.sub{font-size:14.5px;color:var(--ink-2)}
+
+/* ── 端末モック ── */
+.stage{
+  display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;
+  padding:26px;border-radius:4px;border:1px solid var(--rule);
+  background:
+    radial-gradient(120% 90% at 20% 0%, #2A3550 0%, transparent 60%),
+    radial-gradient(100% 80% at 90% 100%, #3B2A3A 0%, transparent 55%),
+    linear-gradient(160deg,#12161F,#0A0D14);
+  box-shadow:var(--shadow);
+}
+.cap{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;
+  color:#8B94A3;text-transform:uppercase;margin:0 0 8px;
+}
+.unit{display:flex;flex-direction:column}
+
+/* ロック画面 */
+.lock{width:238px;display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 0 10px}
+.lock .inline{
+  font:500 13px/1.2 -apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+  color:rgba(255,255,255,.92);letter-spacing:.01em;
+}
+.lock .clock{
+  font:600 74px/0.95 -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+  color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+}
+.lockrow{display:flex;gap:12px;align-items:center;justify-content:center;width:100%}
+
+.acc-circ{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(255,255,255,.16);backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+}
+.acc-circ .n{font-size:20px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.acc-circ .l{font-size:9px;font-weight:500;opacity:.85;margin-top:1px}
+
+.acc-rect{
+  width:160px;height:72px;border-radius:12px;
+  background:rgba(255,255,255,.16);backdrop-filter:blur(8px);
+  padding:7px 10px;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
+}
+.acc-rect .r1{font-size:15px;font-weight:700;line-height:1.2}
+.acc-rect .r2,.acc-rect .r3{font-size:12px;font-weight:500;line-height:1.25;opacity:.92}
+
+/* ホーム画面ウィジェット */
+.w{
+  background:linear-gradient(160deg,var(--wbg1),var(--wbg2));
+  border-radius:22px;padding:14px 15px;color:var(--wink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+  display:flex;flex-direction:column;
+  box-shadow:0 6px 20px -8px rgba(0,0,0,.7);
+}
+.w.small{width:160px;height:160px}
+.w.medium{width:340px;height:160px}
+.w .head{font-size:10px;font-weight:500;color:var(--wink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w .row{display:flex;align-items:center;margin-top:6px}
+.w .big{font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.w.small .big{font-size:34px}
+.w.medium .big{font-size:40px}
+.w .u{font-size:13px;font-weight:500;color:var(--wink2);margin-left:5px}
+.w .spacer{flex:1}
+.w .badge{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
+.w .b1{font-size:12px;font-weight:700}
+.w .b2{font-size:10px;font-weight:500;color:var(--wink2)}
+.w .b1.on{color:var(--wgood)}
+.w .b1.off{color:var(--waccent)}
+.w .lab{display:flex;align-items:baseline;margin-top:8px}
+.w .l1{font-size:10px;font-weight:500;color:var(--wink2)}
+.w .l2{font-size:11px;font-weight:700;margin-left:auto}
+.w .l2.low{color:var(--waccent)}
+.w .l2.ok{color:var(--wgood)}
+.w .spark{margin-top:4px;display:block}
+.w .mile{font-size:10px;font-weight:700;color:var(--wline);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w.medium .mile{font-size:11px}
+.w .b1.run{color:var(--wline)}
+.w .foot{font-size:10px;font-weight:500;color:var(--wink2);margin-top:4px;line-height:1.4}
+.w.empty{align-items:flex-start;justify-content:center}
+.w.empty .set{font-size:15px;font-weight:700;line-height:1.35}
+
+/* iOS ダイアログ */
+.dlg{
+  width:270px;border-radius:14px;overflow:hidden;
+  background:rgba(38,42,50,.96);backdrop-filter:blur(20px);
+  color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+  box-shadow:0 12px 40px -10px rgba(0,0,0,.8);
+}
+.dlg .body{padding:17px 16px 13px;text-align:center}
+.dlg .t{font-size:17px;font-weight:600;margin-bottom:4px}
+.dlg .m{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.82);white-space:pre-line}
+.dlg .field{
+  margin-top:10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);
+  border-radius:6px;padding:6px 9px;font-size:13px;text-align:left;color:rgba(255,255,255,.45);
+}
+.dlg .field.filled{color:#fff}
+.dlg .acts{border-top:1px solid rgba(255,255,255,.14)}
+.dlg .act{
+  padding:11px 8px;text-align:center;font-size:16px;color:#4C9AFF;
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.dlg .act:last-child{border-bottom:0}
+.dlg .act.strong{font-weight:600}
+.dlg .act.danger{color:#FF6B5E}
+
+/* 履歴テーブル */
+.table-ios{
+  width:300px;border-radius:12px;overflow:hidden;background:rgba(28,32,40,.96);
+  color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Hiragino Sans",sans-serif;
+  box-shadow:0 12px 40px -10px rgba(0,0,0,.8);
+}
+.table-ios .r{
+  display:flex;justify-content:space-between;gap:10px;padding:9px 13px;
+  border-bottom:1px solid rgba(255,255,255,.09);font-size:12.5px;
+}
+.table-ios .r:last-child{border-bottom:0}
+.table-ios .r.h{background:rgba(255,255,255,.07);font-weight:700;font-size:12px}
+.table-ios .r .rt{color:rgba(255,255,255,.62);text-align:right}
+.table-ios .r.h .rt{color:rgba(255,255,255,.8);font-weight:500}
+.table-ios .r.miss{opacity:.45}
+
+/* 注釈 */
+.annot{
+  background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--ai);
+  border-radius:3px;padding:15px 19px;margin:18px 0 0;box-shadow:var(--shadow);
+}
+.annot h4{margin:0 0 6px;font-size:15.5px;font-weight:700;line-height:1.5}
+.annot p{margin:0 0 8px;font-size:14px;color:var(--ink-2);line-height:1.8}
+.annot p:last-child{margin:0}
+.annot b{color:var(--ink)}
+.annot.warn{border-left-color:var(--shu)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+.tablewrap{overflow-x:auto;margin:18px 0 0;border:1px solid var(--rule);border-radius:3px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule-soft);vertical-align:top;line-height:1.7}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;background:var(--card-2)}
+tbody tr:last-child td{border-bottom:0}
+td.k{font-weight:700;white-space:nowrap}
+td.v{color:var(--ink-2);font-size:13.5px}
+
+footer{border-top:1px solid var(--rule);margin-top:16px;padding-top:20px;font-size:13px;color:var(--ink-3);line-height:1.85}
+footer b{color:var(--ink-2)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Scriptable Widget ・ iOS</div>
+  <h1>ゴールメーター</h1>
+  <p class="lede">ロック画面に、3つの数字だけを常駐させる。<b>次の締切までの残り日数</b>、続いている日数、手応えの折れ線。それ以上は出さない。やっている時間は、ワンタッチで計れる。</p>
+  <div class="note-real"><b>これは実機のスクリーンショットではありません。</b>ウィジェットの描画コード（寸法・色・フォントサイズ・余白）をそのままHTMLに写した再現プレビューです。実機では文字レンダリングと壁紙の透過が少し変わります。表示しているデータはサンプルです。</div>
+</header>
+
+<!-- ロック画面 -->
+<section>
+  <div class="shead"><span class="snum">01</span><h2>ロック画面 ── いちばん効く置き場所</h2></div>
+  <p class="sub">1日に何十回も見る画面なので、意識して確認しにいく必要がありません。装置04（外在化）が最も安く実現できる場所です。</p>
+
+  <div class="stage">
+    <div class="unit">
+      <div class="cap">Lock Screen</div>
+      <div class="lock">
+        <div class="inline">第0期しめ 24日 ・ 連続7</div>
+        <div class="clock">9:24</div>
+        <div class="lockrow">
+          <div class="acc-circ">
+            <div class="n">24</div>
+            <div class="l">未</div>
+          </div>
+          <div class="acc-rect">
+            <div class="r1">▸ 第0期しめ 24日</div>
+            <div class="r2">最終 350日 ・ 連続 7日</div>
+            <div class="r3">今日 42分</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit" style="align-self:center">
+      <div class="cap">Circular ／ 記録済み ・ 計測中</div>
+      <div style="display:flex;gap:12px;margin-bottom:18px">
+        <div class="acc-circ">
+          <div class="n">24</div>
+          <div class="l">8日</div>
+        </div>
+        <div class="acc-circ">
+          <div class="n">42</div>
+          <div class="l">●計測中</div>
+        </div>
+      </div>
+      <div class="cap">Rectangular ／ 計測中</div>
+      <div class="acc-rect">
+        <div class="r1">▸ 第0期しめ 24日</div>
+        <div class="r2">最終 350日 ・ 連続 8日</div>
+        <div class="r3">● 計測中 42分</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="annot">
+    <h4>丸いウィジェットは、押した瞬間に計測が始まる</h4>
+    <p>直径72ptに入るのは2行が限界です。だから<b>次の締切までの残り日数</b>と、<b>今日の分が終わっているか</b>——この2つに絞りました。終わっていなければ「未」、終わっていれば連続日数。</p>
+    <p>そして丸だけは、タップしてもメニューを開きません。<b>押した瞬間に時間の計測が始まり、もう一度押すと止まります。</b>計測中は経過分に表示が変わります。ロック画面から1タップで始められないと、結局使わなくなるからです。</p>
+  </div>
+</section>
+
+<!-- ホーム画面 -->
+<section>
+  <div class="shead"><span class="snum">02</span><h2>ホーム画面 ── 折れ線が出るのはこちら</h2></div>
+
+  <div class="stage">
+    <div class="unit">
+      <div class="cap">Medium ／ 中間目標あり・未記録</div>
+      <div class="w medium">
+        <div class="head">第59回 社労士試験　最終まで 350日　0/7</div>
+        <div class="row">
+          <span class="big">24</span><span class="u">日</span>
+          <span class="spacer"></span>
+          <span class="badge">
+            <span class="b1 off">今日まだ</span>
+            <span class="b2">2日欠 0</span>
+          </span>
+        </div>
+        <div class="mile">▸ 第0期しめ・3分類と実測　09/30</div>
+        <div class="lab"><span class="l1">手応え</span><span class="l2 low">76%</span></div>
+        <svg class="spark" width="300" height="32" viewBox="0 0 300 32" aria-label="手応えの折れ線。直近21回。80%の基準線を最後に1回下回った。">
+          <polygon fill="#27557F" fill-opacity="0.18" points="0,32 0,25.8 15,29.3 30,22.2 45,18.7 60,24.0 75,16.9 90,20.4 105,14.2 120,17.8 135,11.6 150,15.1 165,9.8 180,12.4 195,8.0 210,10.7 225,6.2 240,9.8 255,4.4 270,7.1 285,2.7 300,13.3 300,32"/>
+          <line x1="0" y1="9.8" x2="300" y2="9.8" stroke="#333B49" stroke-width="1"/>
+          <polyline fill="none" stroke="#27557F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="0,25.8 15,29.3 30,22.2 45,18.7 60,24.0 75,16.9 90,20.4 105,14.2 120,17.8 135,11.6 150,15.1 165,9.8 180,12.4 195,8.0 210,10.7 225,6.2 240,9.8 255,4.4 270,7.1 285,2.7 300,13.3"/>
+          <circle cx="296.5" cy="13.3" r="3.5" fill="#27557F"/>
+        </svg>
+        <div class="foot">最低ラインでいい。それも達成として記録する。</div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">Small ／ 記録済み</div>
+      <div class="w small">
+        <div class="head">第59回 社労士試験　最終350日</div>
+        <div class="row">
+          <span class="big">24</span><span class="u">日</span>
+          <span class="spacer"></span>
+          <span class="badge">
+            <span class="b1 on">連続 8</span>
+            <span class="b2">2日欠 0</span>
+          </span>
+        </div>
+        <div class="mile">▸ 第0期しめ・3分類と実測</div>
+        <div class="lab"><span class="l1">手応え</span><span class="l2 ok">82%</span></div>
+        <svg class="spark" width="130" height="26" viewBox="0 0 130 26">
+          <polygon fill="#27557F" fill-opacity="0.18" points="0,26 0,20.9 6.5,23.8 13,18.1 19.5,15.2 26,19.5 32.5,13.7 39,16.6 45.5,11.6 52,14.4 58.5,9.4 65,12.3 71.5,7.9 78,10.1 84.5,6.5 91,8.7 97.5,5.1 104,7.9 110.5,3.6 117,5.8 123.5,2.2 130,10.8 130,26"/>
+          <line x1="0" y1="7.9" x2="130" y2="7.9" stroke="#333B49" stroke-width="1"/>
+          <polyline fill="none" stroke="#27557F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="0,20.9 6.5,23.8 13,18.1 19.5,15.2 26,19.5 32.5,13.7 39,16.6 45.5,11.6 52,14.4 58.5,9.4 65,12.3 71.5,7.9 78,10.1 84.5,6.5 91,8.7 97.5,5.1 104,7.9 110.5,3.6 117,5.8 123.5,2.2 130,10.8"/>
+          <circle cx="126.5" cy="10.8" r="3.5" fill="#27557F"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <div class="unit">
+      <div class="cap">Medium ／ 計測中</div>
+      <div class="w medium">
+        <div class="head">第59回 社労士試験　最終まで 350日　0/7</div>
+        <div class="row">
+          <span class="big">24</span><span class="u">日</span>
+          <span class="spacer"></span>
+          <span class="badge">
+            <span class="b1 run">● 42分</span>
+            <span class="b2">2日欠 0</span>
+          </span>
+        </div>
+        <div class="mile">▸ 第0期しめ・3分類と実測　09/30</div>
+        <div class="lab"><span class="l1">手応え　今日 42分</span><span class="l2 low">76%</span></div>
+        <svg class="spark" width="300" height="32" viewBox="0 0 300 32" aria-label="手応えの折れ線。直近21回。80%の基準線を最後に1回下回った。">
+          <polygon fill="#27557F" fill-opacity="0.18" points="0,32 0,25.8 15,29.3 30,22.2 45,18.7 60,24.0 75,16.9 90,20.4 105,14.2 120,17.8 135,11.6 150,15.1 165,9.8 180,12.4 195,8.0 210,10.7 225,6.2 240,9.8 255,4.4 270,7.1 285,2.7 300,13.3 300,32"/>
+          <line x1="0" y1="9.8" x2="300" y2="9.8" stroke="#333B49" stroke-width="1"/>
+          <polyline fill="none" stroke="#27557F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="0,25.8 15,29.3 30,22.2 45,18.7 60,24.0 75,16.9 90,20.4 105,14.2 120,17.8 135,11.6 150,15.1 165,9.8 180,12.4 195,8.0 210,10.7 225,6.2 240,9.8 255,4.4 270,7.1 285,2.7 300,13.3"/>
+          <circle cx="296.5" cy="13.3" r="3.5" fill="#27557F"/>
+        </svg>
+        <div class="foot">計測中。止めた時点で今日の記録になります。</div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">初回 ／ 未設定</div>
+      <div class="w small empty">
+        <div class="set">タップして<br>目標を設定</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="annot warn">
+      <h4>「今日まだ」だけが朱色で出る</h4>
+      <p>画面上で色がつくのは1か所だけにしてあります。今日の分が終わっていないとき、右上が<b>朱色で「今日まだ」</b>になる。終われば緑の「連続 8」に変わります。</p>
+      <p>数字を読まなくても、<b>色が変わったかどうか</b>だけで今日の状態が分かる状態にしたい。だから他の要素には色を使いません。</p>
+    </div>
+    <div class="annot">
+      <h4>大きい数字は「最終目標」ではなく「次の締切」</h4>
+      <p>中間目標を入れると、大きい数字が<b>次の中間目標までの残り日数</b>に変わります。350日先の締切は行動を動かしませんが、24日先の締切は動かします。</p>
+      <p>これは4つ目の指標を足したのではなく、<b>1つ目の指標の射程を短くしただけ</b>です。最終日までの日数はヘッダに小さく残り、過ぎた中間目標は自動で繰り上がります（0/7の部分が進む）。</p>
+    </div>
+    <div class="annot">
+      <h4>折れ線の横線は80%</h4>
+      <p>手応えの自己評価が<b>80%の線を下回り続けたら</b>、原因はやり方ではなく中身のほうにある、という合図として引いてあります。</p>
+      <p>目盛りは0〜100%固定ではなく、<b>データの幅に合わせて伸ばして</b>います。固定だと線がほぼ真っ直ぐになって傾きが読めないため。ただし80%の線は必ず範囲に入れてあるので、基準としての意味は残ります。</p>
+      <p>1回下回っただけでは何もしない。線は「毎日の点数」ではなく「傾きを見るため」に置いています。</p>
+    </div>
+  </div>
+</section>
+
+<!-- タップしたあと -->
+<section>
+  <div class="shead"><span class="snum">03</span><h2>タップしたあと ── 記録は10秒で終わる</h2></div>
+  <p class="sub">ウィジェットをタップすると、そのまま操作画面が開きます。アプリを探して開く工程がない、というのがこの形にした理由です。</p>
+
+  <div class="stage">
+    <div class="unit">
+      <div class="cap">起動直後</div>
+      <div class="dlg">
+        <div class="body">
+          <div class="t">第59回 社労士試験</div>
+          <div class="m">▸ 第0期しめ・3分類と実測 まで 24 日
+最終まで 350 日
+今日 42分</div>
+        </div>
+        <div class="acts">
+          <div class="act strong">▶ はじめる（時間を計る）</div>
+          <div class="act">今日の記録をつける</div>
+          <div class="act">中間目標（7）</div>
+          <div class="act">これまでの記録を見る</div>
+          <div class="act">目標を変更する</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">今日の記録</div>
+      <div class="dlg">
+        <div class="body">
+          <div class="t">今日の記録</div>
+          <div class="m">第59回 社労士試験
+▸ 第0期しめ・3分類と実測 まで 24 日
+最終まで 350 日　連続 7 日
+今日 42分
+
+体力が落ちてもここまでは続ける
+
+最低ラインでも「やった」に入れてよい。
+罪悪感を残すと、明日の着手が重くなる。</div>
+          <div class="field filled">健保・標準賞与額の上限</div>
+          <div class="field filled">76</div>
+        </div>
+        <div class="acts">
+          <div class="act strong">やった</div>
+          <div class="act danger">記録を取り消す</div>
+          <div class="act">閉じる</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">これまでの記録</div>
+      <div class="table-ios">
+        <div class="r h"><span>第59回 社労士試験</span><span class="rt">残り 350 日 ・ 2日連続で欠けた回数 0</span></div>
+        <div class="r"><span>2026-09-06</span><span class="rt">42分 ・ 手応え 76% ・ 健保 標準賞与額</span></div>
+        <div class="r"><span>2026-09-05</span><span class="rt">55分 ・ 手応え 82%</span></div>
+        <div class="r"><span>2026-09-04</span><span class="rt">やった</span></div>
+        <div class="r"><span>2026-09-03</span><span class="rt">4分 ・ 手応え 79% ・ 5枚だけ</span></div>
+        <div class="r miss"><span>2026-09-02</span><span class="rt">記録なし</span></div>
+        <div class="r"><span>2026-09-01</span><span class="rt">手応え 84%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="annot">
+      <h4>入力欄は2つ、どちらも任意</h4>
+      <p>「ひとこと」と「手応え0〜100」だけ。<b>空のまま「やった」を押しても記録は成立します。</b>入力を必須にすると、疲れている日に記録そのものを飛ばすようになるからです。</p>
+      <p>記録が飛ぶと連続日数が切れ、切れると翌日の復帰が重くなる——この連鎖を止めるほうが、データの精度より優先です。</p>
+    </div>
+    <div class="annot">
+      <h4>計測を止めると、記録も一緒に立つ</h4>
+      <p>「計る」と「記録する」を別の操作にすると、片方を必ず忘れます。だから<b>止めた瞬間に「今日やった」が自動で立ちます。</b>手で記録をつける必要はありません。</p>
+      <p>止め忘れても壊れません。<b>6時間を超えた計測は捨てて</b>、その旨を伝えます。「寝ている間ずっと勉強したことになる」を防ぐためです。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 設定 -->
+<section>
+  <div class="shead"><span class="snum">04</span><h2>何のためのカウントダウンか、を先に決める</h2></div>
+  <p class="sub">試験に限りません。転職、独立、資格更新、原稿の締切、体重、引っ越し——<strong>日付のある目標なら何でも入ります。</strong>入れるのは3つ、うち1つは任意です。</p>
+
+  <div class="stage">
+    <div class="unit">
+      <div class="cap">初回 ／ 目標を決める</div>
+      <div class="dlg">
+        <div class="body">
+          <div class="t">何のカウントダウン？</div>
+          <div class="m">日付のある目標にしてください。日付がないと、残り日数という一番効く数字が出せません。</div>
+          <div class="field filled">簿記2級に合格</div>
+          <div class="field filled">2027-06-13</div>
+          <div class="field filled">転職の応募条件だから</div>
+        </div>
+        <div class="acts">
+          <div class="act strong">保存</div>
+          <div class="act">やめる</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">中間目標</div>
+      <div class="table-ios">
+        <div class="r h"><span>中間目標</span><span class="rt">1 / 7 通過</span></div>
+        <div class="r miss"><span>✓ 申込を出す</span><span class="rt">2026-09-01　通過</span></div>
+        <div class="r"><span>▸ 第0期しめ・3分類と実測</span><span class="rt">2026-09-30　あと 24 日</span></div>
+        <div class="r"><span>▸ S級カード投入おわり</span><span class="rt">2026-12-15　あと 100 日</span></div>
+        <div class="r"><span>▸ ブラインド測定</span><span class="rt">2027-01-17　あと 133 日</span></div>
+        <div class="r"><span>＋ 中間目標を追加</span><span class="rt">2〜6週間先に置くと効きます</span></div>
+      </div>
+    </div>
+
+    <div class="unit">
+      <div class="cap">中間目標を追加</div>
+      <div class="dlg">
+        <div class="body">
+          <div class="t">中間目標を追加</div>
+          <div class="m">350日先の締切は行動を動かしません。
+2〜6週間先くらいに置くのが効きます。</div>
+          <div class="field filled">テキスト1周</div>
+          <div class="field">2026-10-20</div>
+        </div>
+        <div class="acts">
+          <div class="act strong">保存</div>
+          <div class="act">やめる</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="annot">
+      <h4>3つ目の欄「なぜやるのか」は、行動の直前に出る</h4>
+      <p>ここに書いた1行は、<b>記録をつけるときのダイアログ</b>と、<b>その日の分が済んだあとのウィジェット</b>に出ます。宣言として飾っておくのではなく、手が動く瞬間に目に入る場所にだけ置いてあります。</p>
+      <p>任意です。書かなくても動きます。</p>
+    </div>
+    <div class="annot">
+      <h4>中間目標は2〜6週間先に置く</h4>
+      <p>近すぎると節目にならず、遠すぎると今日の行動を動かしません。過ぎたものは自動で「通過」に変わり、次の中間目標が大きい数字に繰り上がります。<b>手入れは要りません。</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- 設計 -->
+<section>
+  <div class="shead"><span class="snum">05</span><h2>出さないと決めたもの</h2></div>
+  <p class="sub">習慣アプリとの違いは、足した機能ではなく<strong>足さなかった機能</strong>のほうにあります。</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>出さないもの</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td class="k">達成率・週間グラフ・カテゴリ別集計</td><td class="v">指標を増やすと、記録をつけること自体が目標の代わりになる。実際に2回やった失敗。</td></tr>
+        <tr><td class="k">連続記録を主指標にすること</td><td class="v">連続記録は<b>途切れた瞬間に人を辞めさせる</b>。だから主指標は「2日連続で欠けた回数」。途切れても復帰を促す形にしてある。</td></tr>
+        <tr><td class="k">通知・催促</td><td class="v">通知で動くなら最初から困っていない。起動は通知ではなく、毎日必ずやる行動（サプリを飲む等）に紐づける。</td></tr>
+        <tr><td class="k">複数の目標</td><td class="v">3つの数字だけ、という思想と正面から衝突する。要望は必ず来るが、v1では入れない。</td></tr>
+        <tr><td class="k">計測の細かい分類（科目別・タグ別）</td><td class="v">1日の合計分数だけ持つ。分類を始めると、分類の設計に時間が溶ける。内訳が要るなら「ひとこと」に書けば履歴に残る。</td></tr>
+        <tr><td class="k">ログインとアカウント</td><td class="v">記録はiCloud Driveの<b>1つのJSONファイル</b>。壊れても直せて、Macからも読める。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="annot">
+    <h4>1日休むのは計画の内。2日連続で初めて崩れる</h4>
+    <p>この画面で唯一「守れ」と言っている数字が <b>2日欠</b> です。継続を決めるのは連続記録の長さではなく、<b>途切れた翌日に戻れるかどうか</b>だから。</p>
+    <p>だから今日の分が未記録でも、昨日まで続いていれば連続日数は切りません。「今日の分が終わっていない」ことと「途切れた」ことは、別のできごととして扱います。</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>導入</b>：App Store で Scriptable（無料）を入れ、スクリプトを貼り、ロック画面とホーム画面にウィジェットを置く。目標名と目標日はアプリ内で設定するので、コードを触る必要はありません。所要10分。</p>
+  <p style="margin-top:8px">記録は iCloud Drive の <b>Scriptable/goal-meter.json</b> に貯まります。Android版とApple Watchの複雑機能は、この版には入っていません。</p>
+</footer>
+
+</div>
